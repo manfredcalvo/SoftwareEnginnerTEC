@@ -1,11 +1,12 @@
 package com.research.MessagingPattern.roles.impl;
 
+import com.research.MessagingPattern.instances.Worker;
+import com.research.MessagingPattern.roles.AbstractConnector;
 import com.research.MessagingPattern.roles.AbstractServer;
 import com.research.MessagingPattern.instances.Result;
 import com.research.MessagingPattern.instances.Task;
-
-import java.util.ArrayDeque;
-import java.util.Queue;
+import com.research.MessagingPattern.instances.Message;
+import java.util.concurrent.*;
 
 /**
  * Created by mcalvo on 05/09/15.
@@ -13,119 +14,71 @@ import java.util.Queue;
 
 public class ServerPatternImpl extends AbstractServer{
 
-    private Queue<Task> tasks;
-    private Queue<Result> results;
+    private ExecutorService executorMessages;
+    private ExecutorService executorResults;
+    private static BlockingQueue<Runnable> MessageQueue;
+    private static BlockingQueue<Runnable> ResultQueue;
 
     public ServerPatternImpl(double matrix[][]){
 
         super(matrix);
-        tasks = new ArrayDeque<Task>();
-        results = new ArrayDeque<Result>();
-
-        Thread thread = new Thread(new ProcessTasksQueue());
-        thread.start();
-        Thread thread1 = new Thread(new ProcessResultsQueue());
-        thread1.start();
-    }
-
-    private synchronized void addToResultsQueue(Result result){
-
-        results.add(result);
-
-    }
-
-    private synchronized Result getResultOfQueue(){
-
-        return results.poll();
-
-    }
-
-
-    private synchronized void addToTaskToQueue(Task task){
-
-        tasks.add(task);
-
-    }
-
-    private synchronized boolean tasksIsEmpty(){
-
-        return tasks.isEmpty();
-
-    }
-
-    private synchronized boolean resultIsEmpty(){
-
-        return results.isEmpty();
-
-    }
-
-    private synchronized Task getTaskOfQueue(){
-
-        return tasks.poll();
+        MessageQueue = new PriorityBlockingQueue<Runnable>();
+        ResultQueue  = new PriorityBlockingQueue<Runnable>();
+        executorMessages = new ThreadPoolExecutor(10, 20, 5000, TimeUnit.MILLISECONDS, MessageQueue);
+        executorResults  = new ThreadPoolExecutor(10, 20, 5000, TimeUnit.MILLISECONDS, ResultQueue);
 
     }
 
     @Override
     public void assignTaskToWorker(Task task){
-
-        addToTaskToQueue(task);
+        executorMessages.execute(new ProcessMessagesQueue(this.client, task));
 
     }
+
 
     @Override
     public void updateCoordinateValue(Result result) {
-
-        addToResultsQueue(result);
-
+        executorResults.execute(new ProcessResultsQueue(this, result));
     }
 
 
-    private class ProcessTasksQueue implements Runnable{
 
+    private static class ProcessResultsQueue implements Runnable{
 
-        public ProcessTasksQueue(){
+        private Result result;
+        private ServerPatternImpl server;
 
+        public ProcessResultsQueue(ServerPatternImpl server, Result result) {
+            this.result = result;
+            this.server = server;
         }
 
         public void run() {
-
-            while(true) {
-
-                if(!tasksIsEmpty()) {
-
-                    Task task = getTaskOfQueue();
-
-                    client.sendMessage(task.getMessage(), task.getWorker());
-
-                }
-            }
-
+            server.updateMatrixValue(result.getX(), result.getY(), result.getValue());
         }
     }
 
-    private class ProcessResultsQueue implements Runnable{
+
+
+    private static class ProcessMessagesQueue implements Runnable{
+
+        private AbstractConnector client;
+        private Message message;
+        private Worker worker;
+
+        public ProcessMessagesQueue(AbstractConnector client,Task task) {
+            this.client = client;
+            this.message = task.getMessage();
+            this.worker = task.getWorker();
+        }
 
         public void run() {
-
-            while(true){
-
-                if(!resultIsEmpty()){
-
-                    Result result = getResultOfQueue();
-
-                    updateMatrixValue(result.getX(), result.getY(), result.getValue());
-
-
-                }
-
-
-            }
-
+            client.sendMessage(this.message, this.worker);
         }
     }
-
-
-
-
 
 }
+
+
+
+

@@ -8,7 +8,6 @@ import com.research.MessagingPattern.instances.Message;
 import com.research.MessagingPattern.instances.Task;
 import com.research.MessagingPattern.instances.Worker;
 import org.javatuples.Pair;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -70,7 +69,7 @@ public class MainServerPattern {
 
         t.start();
 
-        for(int j = 0; j < 500; j++){
+        for(int j = 0; j < matrixLength; j++){
 
             for(int k = 0; k < matrixLength; k++){
 
@@ -78,7 +77,7 @@ public class MainServerPattern {
 
                 Message message = new Message(limit, new Pair<Integer, Integer>(k, j));
 
-                server.assignTaskToWorker(new Task(message,actual));
+                server.assignTaskToWorker(new Task(message, actual));
 
             }
         }
@@ -100,6 +99,5 @@ public class MainServerPattern {
             connector.listenConnections();
         }
     }
-
 
 }

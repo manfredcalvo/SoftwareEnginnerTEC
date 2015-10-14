@@ -21,13 +21,15 @@ public class MainServerNoPattern {
 
     public static void main(String []args) throws InterruptedException {
 
+        long time_start;
+        time_start = System.currentTimeMillis();
+        System.out.println("La tarea comienza "+ time_start);
 
         args = new String[4];
-        args[0] = "127.0.0.1:50002";
+        args[0] = "127.0.0.1:50002;127.0.0.1:50003";
         args[1] = "10000";
         args[2] = "1";
         args[3] = "8030";
-
 
         String workers[] = args[0].split(";");
 
@@ -76,7 +78,7 @@ public class MainServerNoPattern {
                 Message message = new Message(limit, new Pair<Integer, Integer>(k, j));
 
                 server.assignTaskToWorker(new Task(message,actual));
-
+                System.out.println("SERVER");
 
             }
         }

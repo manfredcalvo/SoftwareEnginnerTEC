@@ -1,16 +1,20 @@
 package com.research.MessagingPattern.roles.impl;
 
+import com.research.MessagingPattern.instances.Message;
 import com.research.MessagingPattern.roles.AbstractConnector;
 import com.research.MessagingPattern.instances.Worker;
+import org.javatuples.Pair;
 
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 
+
 /**
  * Created by mcalvo on 06/09/15.
  */
+
 public abstract class SocketConnector extends AbstractConnector{
 
 
@@ -31,9 +35,7 @@ public abstract class SocketConnector extends AbstractConnector{
             while (true) {
 
                 Socket clientSocket = serverSocket.accept();
-
                 Runnable manageClient = getManageClient(clientSocket);
-
                 service.execute(manageClient);
 
             }
@@ -61,9 +63,6 @@ public abstract class SocketConnector extends AbstractConnector{
         }catch (Throwable e){
             e.printStackTrace();
         }
-
-
     }
-
-
 }
+

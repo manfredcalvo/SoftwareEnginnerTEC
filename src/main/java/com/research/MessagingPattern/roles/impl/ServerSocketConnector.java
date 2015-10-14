@@ -38,7 +38,6 @@ public class ServerSocketConnector extends SocketConnector{
 
     private class ManageClients implements Runnable{
 
-
         private Socket in;
         private ObjectInputStream input;
 
@@ -57,6 +56,7 @@ public class ServerSocketConnector extends SocketConnector{
 
                 server.updateCoordinateValue(result);
 
+
                 in.close();
 
             }catch (Throwable e){
@@ -64,6 +64,5 @@ public class ServerSocketConnector extends SocketConnector{
             }
         }
     }
-
 
 }

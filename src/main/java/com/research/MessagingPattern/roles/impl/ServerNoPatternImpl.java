@@ -29,5 +29,4 @@ public class ServerNoPatternImpl extends AbstractServer{
 
     }
 
-
 }
