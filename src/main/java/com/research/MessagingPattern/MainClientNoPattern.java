@@ -19,7 +19,7 @@ public class MainClientNoPattern {
         args = new String[3];
         args[0] = "127.0.0.1:8030";
         args[1] = "1";
-        args[2] = "50003";
+        args[2] = "50004";
 
         String serverIpPort = args[0];
 
@@ -27,15 +27,13 @@ public class MainClientNoPattern {
 
         int port = Integer.parseInt(args[2]);
 
-        ExecutorService service = Executors.newFixedThreadPool(cpus);
-
         String ipPort[] = serverIpPort.split(":");
 
         Worker worker = new Worker(ipPort[0], Integer.parseInt(ipPort[1]));
 
-        AbstractClient client = new ClientNoPatternImpl(service, worker);
+        AbstractClient client = new ClientNoPatternImpl(worker);
 
-        AbstractConnector connector = new ClientSocketConnector(service, client, port);
+        AbstractConnector connector = new ClientSocketConnector(client, port);
 
         client.setClient(connector);
 

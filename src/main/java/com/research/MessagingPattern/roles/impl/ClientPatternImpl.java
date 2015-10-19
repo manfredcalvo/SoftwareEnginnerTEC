@@ -5,9 +5,8 @@ import com.research.MessagingPattern.roles.AbstractClient;
 import com.research.MessagingPattern.instances.Message;
 import com.research.MessagingPattern.instances.Result;
 import com.research.MessagingPattern.instances.Worker;
+import com.research.MessagingPattern.utils.PriorityExecutor;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -16,107 +15,34 @@ import java.util.concurrent.ExecutorService;
 
 public class ClientPatternImpl extends AbstractClient {
 
-    private Queue<Message> messages;
-    private Queue<Result> results;
+    private PriorityExecutor messagesExecutor;
+    private PriorityExecutor resultsExecutor;
 
-    public ClientPatternImpl(ExecutorService service, Worker worker){
-        super(service, worker);
-        this.messages = new ArrayDeque<Message>();
-        this.results = new ArrayDeque<Result>();
+    public ClientPatternImpl(Worker worker, int cpus){
 
-        Thread t = new Thread(new ProcessMessagesQueue());
-        t.start();
-        Thread t1 = new Thread(new ProcessResultsQueue());
-        t1.start();
+        super(worker);
 
+        this.messagesExecutor = (PriorityExecutor)PriorityExecutor.newFixedThreadPool(cpus);
+        this.resultsExecutor = (PriorityExecutor)PriorityExecutor.newFixedThreadPool(cpus);
 
-    }
-
-    private synchronized boolean messagesIsEmpty(){
-
-        return messages.isEmpty();
-
-    }
-
-    private synchronized boolean resultsIsEmpty(){
-
-        return results.isEmpty();
-
-    }
-
-    private synchronized void addToResultQueue(Result result){
-
-        results.add(result);
-
-    }
-
-    private synchronized Result getResultOfQueue(){
-
-        return results.poll();
-
-    }
-
-    private synchronized Message getMessageOfQueue(){
-
-        return messages.poll();
-
-    }
-
-
-    private synchronized void addToMessageQueue(Message message){
-        messages.add(message);
     }
 
     @Override
     public void processTask(Message message) {
 
-        addToMessageQueue(message);
+        Runnable executeTask = new ExecuteTask(message);
+
+        messagesExecutor.execute(executeTask);
+
     }
 
     @Override
     public void sendResult(Result result) {
 
-        addToResultQueue(result);
-    }
+        Runnable sendMessage = new SendMessage(result);
 
+        resultsExecutor.execute(sendMessage);
 
-    private class ProcessMessagesQueue implements Runnable{
-
-        public ProcessMessagesQueue(){
-
-        }
-
-        public void run() {
-
-            while(true) {
-
-                if(!messagesIsEmpty()) {
-
-                    ExecuteTask task = new ExecuteTask(getMessageOfQueue());
-
-                    service.execute(task);
-
-                }
-            }
-
-        }
-    }
-
-    private class ProcessResultsQueue implements Runnable{
-
-        public void run() {
-
-            while(true){
-
-                if(!resultsIsEmpty()){
-
-                    client.sendMessage(getResultOfQueue(), worker);
-
-                }
-
-            }
-
-        }
     }
 
 

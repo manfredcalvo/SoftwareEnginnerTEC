@@ -4,8 +4,10 @@ import com.research.MessagingPattern.roles.AbstractServer;
 import com.research.MessagingPattern.instances.Result;
 
 import java.io.ObjectInputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Logger;
 
 /**
  * Created by mcalvo on 06/09/15.
@@ -13,12 +15,15 @@ import java.util.concurrent.ExecutorService;
 public class ServerSocketConnector extends SocketConnector{
 
     private AbstractServer server;
+    private int totalConnections ;
+    private Logger logger = Logger.getLogger(ServerSocketConnector.class.getName());
 
-    public ServerSocketConnector(ExecutorService service, AbstractServer server, int portToListen){
+    public ServerSocketConnector(AbstractServer server, int portToListen, int totalConnections){
 
-        super(service, portToListen);
+        super(portToListen);
 
         this.server = server;
+        this.totalConnections = totalConnections;
     }
 
     public AbstractServer getServer() {
@@ -30,39 +35,49 @@ public class ServerSocketConnector extends SocketConnector{
     }
 
     @Override
-    public Runnable getManageClient(Socket client) {
+    public void listenConnections(){
 
-        return new ManageClients(client);
+        try {
 
-    }
+            logger.info("Socket listen connections");
 
-    private class ManageClients implements Runnable{
+            ServerSocket serverSocket = new ServerSocket(portToListen);
 
-        private Socket in;
-        private ObjectInputStream input;
+            int x = 0;
 
-        public ManageClients(Socket in){
+            while (x < totalConnections) {
 
-            this.in = in;
-        }
+                Socket clientSocket = serverSocket.accept();
 
-        public void run() {
+                logger.info("Connecting with client: " + clientSocket.getInetAddress().getHostAddress());
 
-            try {
+                readMessage(clientSocket);
 
-                input = new ObjectInputStream(in.getInputStream());
+                x++;
 
-                Result result = (Result)input.readObject();
-
-                server.updateCoordinateValue(result);
-
-
-                in.close();
-
-            }catch (Throwable e){
-                e.printStackTrace();
             }
+
+            serverSocket.close();
+
+
+        }catch (Throwable e){
+            e.printStackTrace();
         }
+
     }
+
+    @Override
+    public void readMessage(Object message) throws Exception {
+
+        Socket in = (Socket) message;
+
+        ObjectInputStream input = new ObjectInputStream(in.getInputStream());
+
+        Result result = (Result)input.readObject();
+
+        server.updateCoordinateValue(result);
+
+    }
+
 
 }

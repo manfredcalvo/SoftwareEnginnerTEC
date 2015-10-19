@@ -15,12 +15,11 @@ public abstract class AbstractClient {
 
     protected Worker worker;
 
-    protected ExecutorService service;
 
-    public AbstractClient(ExecutorService service, Worker worker){
+    public AbstractClient(Worker worker){
 
         this.worker = worker;
-        this.service = service;
+
     }
 
     public abstract void processTask(Message message);
@@ -65,6 +64,24 @@ public abstract class AbstractClient {
 
             sendResult(result);
 
+
+        }
+    }
+
+    protected class SendMessage implements Runnable {
+
+        private Result result;
+
+        public SendMessage(Result result){
+
+            this.result = result;
+
+        }
+
+        @Override
+        public void run() {
+
+            client.sendMessage(result, worker);
 
         }
     }

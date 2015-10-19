@@ -13,17 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 /**
  * Created by mcalvo on 06/09/15.
  */
 public class MainServerNoPattern {
 
-    public static void main(String []args) throws InterruptedException {
+    private static Logger logger = Logger.getLogger(MainServerNoPattern.class.getName());
 
-        long time_start;
-        time_start = System.currentTimeMillis();
-        System.out.println("La tarea comienza "+ time_start);
+    public static void main(String []args) throws InterruptedException {
 
         args = new String[4];
         args[0] = "127.0.0.1:50002;127.0.0.1:50003";
@@ -43,11 +42,9 @@ public class MainServerNoPattern {
 
         double matrix[][] = new double[matrixLength][matrixLength];
 
-        ExecutorService service = Executors.newFixedThreadPool(cpus);
-
         AbstractServer server = new ServerNoPatternImpl(matrix);
 
-        AbstractConnector connector = new ServerSocketConnector(service, server, port);
+        AbstractConnector connector = new ServerSocketConnector(server, port, matrixLength * matrixLength);
 
         server.setClient(connector);
 
@@ -78,7 +75,6 @@ public class MainServerNoPattern {
                 Message message = new Message(limit, new Pair<Integer, Integer>(k, j));
 
                 server.assignTaskToWorker(new Task(message,actual));
-                System.out.println("SERVER");
 
             }
         }

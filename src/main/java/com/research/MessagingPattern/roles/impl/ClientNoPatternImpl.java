@@ -13,23 +13,32 @@ import java.util.concurrent.ExecutorService;
 public class ClientNoPatternImpl extends AbstractClient{
 
 
-    public ClientNoPatternImpl(ExecutorService service, Worker worker){
-        super(service, worker);
+    public ClientNoPatternImpl( Worker worker){
+
+        super(worker);
     }
+
 
     @Override
     public void processTask(Message message) {
 
-        ExecuteTask task = new ExecuteTask(message);
+        Runnable executeTask = new ExecuteTask(message);
 
-        service.execute(task);
+        Thread t = new Thread(executeTask);
+
+        t.start();
 
     }
+
 
     @Override
     public void sendResult(Result result) {
 
-        client.sendMessage(result, worker);
+        Runnable sendMessage = new SendMessage(result);
+
+        Thread t = new Thread(sendMessage);
+
+        t.start();
 
     }
 

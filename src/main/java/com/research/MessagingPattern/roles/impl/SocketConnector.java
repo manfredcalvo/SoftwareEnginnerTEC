@@ -6,9 +6,12 @@ import com.research.MessagingPattern.instances.Worker;
 import org.javatuples.Pair;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 
 /**
@@ -18,41 +21,49 @@ import java.util.concurrent.ExecutorService;
 public abstract class SocketConnector extends AbstractConnector{
 
 
-    public SocketConnector(ExecutorService service, int portToListen){
+    private Logger logger = Logger.getLogger(SocketConnector.class.getName());
 
-        super(service, portToListen);
+    public SocketConnector( int portToListen){
+
+        super(portToListen);
     }
 
-    public abstract Runnable getManageClient(Socket client);
 
     @Override
     public void listenConnections(){
 
         try {
 
+            logger.info("Socket listen connections");
+
             ServerSocket serverSocket = new ServerSocket(portToListen);
 
             while (true) {
 
                 Socket clientSocket = serverSocket.accept();
-                Runnable manageClient = getManageClient(clientSocket);
-                service.execute(manageClient);
+
+                logger.info("Connecting with client: " + clientSocket.getInetAddress().getHostAddress());
+
+                readMessage(clientSocket);
 
             }
 
-
         }catch (Throwable e){
             e.printStackTrace();
+
         }
 
     }
+
 
     @Override
     public void sendMessage(Object message, Worker worker) {
 
         try {
 
-            Socket client = new Socket(worker.getIp(), worker.getPort());
+            Socket client = new Socket();
+
+            client.connect(new InetSocketAddress(worker.getIp(),worker.getPort()));
 
             ObjectOutputStream output = new ObjectOutputStream(client.getOutputStream());
 

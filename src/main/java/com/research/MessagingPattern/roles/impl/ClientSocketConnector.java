@@ -14,47 +14,25 @@ public class ClientSocketConnector extends SocketConnector{
 
     private AbstractClient client;
 
-    public ClientSocketConnector(ExecutorService service, AbstractClient client, int portToListen){
-        super(service, portToListen);
+    public ClientSocketConnector( AbstractClient client, int portToListen){
+        super(portToListen);
         this.client = client;
     }
 
     @Override
-    public Runnable getManageClient(Socket client) {
+    public void readMessage(Object message)throws Exception{
 
-        return new ManageClients(client);
+        Socket in = (Socket)message;
 
-    }
+        ObjectInputStream input= new ObjectInputStream(in.getInputStream());
 
-    private class ManageClients implements Runnable{
+        Message objectMessage = (Message) input.readObject();
 
+        client.processTask(objectMessage);
 
-        private Socket in;
-
-        private ObjectInputStream input;
-
-        public ManageClients(Socket in){
-
-            this.in = in;
-        }
-
-        public void run() {
-
-            try {
-
-                input = new ObjectInputStream(in.getInputStream());
-
-                Message message = (Message)input.readObject();
-
-                client.processTask(message);
-
-                in.close();
+        in.close();
 
 
-            }catch (Throwable e){
-                e.printStackTrace();
-            }
-        }
     }
 
 }
