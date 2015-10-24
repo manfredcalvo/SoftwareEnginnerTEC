@@ -11,14 +11,10 @@ import com.research.MessagingPattern.instances.Task;
 import com.research.MessagingPattern.instances.Worker;
 import hep.aida.bin.DynamicBin1D;
 import org.javatuples.Pair;
-
-import javax.management.DynamicMBean;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 /**
@@ -39,8 +35,9 @@ public class MainServerPattern {
         args[1] = "10000";
         args[2] = "1";
         args[3] = "8030";
-        args[4] = "PATTERN";
-        args[5] = "/home/mcalvo/resultsPattern10MilV1.csv";
+        args[4] = "NO_PATTERN";
+       // args[5] = "/home/mcalvo/resultsPattern10MilV1.csv";
+        args[5] = "/Users/raquelrodriguezchaves/resultsNoPattern10MilV1.csv";
 
         DynamicBin1D experimentStatistics = new DynamicBin1D();
 
@@ -133,11 +130,11 @@ public class MainServerPattern {
 
         }
 
-        logger.info("Time in seconds mean: " + experimentStatistics.mean());
+         logger.info("Time in seconds mean: " + experimentStatistics.mean());
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(args[5], true));
 
-        writer.append("Mean = ").append(String.valueOf(experimentStatistics.mean())).append("\n");
+        //writer.append("Mean = ").append(String.valueOf(experimentStatistics.mean())).append("\n");
 
         writer.close();
 

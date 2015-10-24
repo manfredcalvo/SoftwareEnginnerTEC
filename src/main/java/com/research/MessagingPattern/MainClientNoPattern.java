@@ -6,9 +6,6 @@ import com.research.MessagingPattern.roles.AbstractConnector;
 import com.research.MessagingPattern.roles.impl.ClientNoPatternImpl;
 import com.research.MessagingPattern.roles.impl.ClientSocketConnector;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 /**
  * Created by mcalvo on 06/09/15.
  */
@@ -19,7 +16,7 @@ public class MainClientNoPattern {
         args = new String[3];
         args[0] = "127.0.0.1:8030";
         args[1] = "1";
-        args[2] = "50004";
+        args[2] = "50003";
 
         String serverIpPort = args[0];
 
