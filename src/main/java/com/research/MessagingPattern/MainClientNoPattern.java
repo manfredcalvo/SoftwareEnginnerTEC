@@ -16,7 +16,7 @@ public class MainClientNoPattern {
         args = new String[3];
         args[0] = "127.0.0.1:8030";
         args[1] = "1";
-        args[2] = "50003";
+        args[2] = "50004";
 
         String serverIpPort = args[0];
 

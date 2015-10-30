@@ -28,34 +28,40 @@ public class MainServerPattern {
 
     public static void main(String []args) throws Exception {
 
-        int nVeces = 100;
 
-        args = new String[6];
-        args[0] = "127.0.0.1:50003;127.0.0.1:50004";
-        args[1] = "10000";
-        args[2] = "1";
-        args[3] = "8030";
-        args[4] = "NO_PATTERN";
-       // args[5] = "/home/mcalvo/resultsPattern10MilV1.csv";
-        args[5] = "/Users/raquelrodriguezchaves/resultsNoPattern10MilV1.csv";
+        args = new String[8];
+
+        args[0] = "10";
+        args[1] = "127.0.0.1:50003;127.0.0.1:50004";
+        args[2] = "1000";
+        args[3] = "1";
+        args[4] = "8030";
+        args[5] = "NO_PATTERN";
+        args[6] = "10000";
+        args[7] = "/home/mcalvo/resultsPattern10MilV1.csv";
+        //args[7] = "/Users/raquelrodriguezchaves/resultsNoPattern10MilV1.csv";
 
         DynamicBin1D experimentStatistics = new DynamicBin1D();
 
+        int nVeces = Integer.parseInt(args[0]);
+
         while(nVeces > 0) {
 
-            String workers[] = args[0].split(";");
+            String workers[] = args[1].split(";");
 
-            int matrixLength = workers.length;
+            int numberOfWorkers = workers.length;
 
-            int limit = Integer.parseInt(args[1]);
+            int limit = Integer.parseInt(args[2]);
 
-            int cpus = Integer.parseInt(args[2]);
+            int cpus = Integer.parseInt(args[3]);
 
-            int port = Integer.parseInt(args[3]);
+            int port = Integer.parseInt(args[4]);
 
-            Mode mode = Mode.valueOf(args[4]);
+            Mode mode = Mode.valueOf(args[5]);
 
-            double matrix[][] = new double[matrixLength][500];
+            int matrixLength = Integer.parseInt(args[6]);
+
+            double matrix[][] = new double[matrixLength][matrixLength];
 
             AbstractServer server = null;
 
@@ -92,11 +98,15 @@ public class MainServerPattern {
 
             Thread.sleep(1000);
 
+            int nextWorker = 0;
+
             for (int j = 0; j < matrixLength; j++) {
 
                 for (int k = 0; k < matrixLength; k++) {
 
-                    Worker actual = workerList.get(k);
+                    Worker actual = workerList.get(nextWorker);
+
+                    nextWorker = (nextWorker + 1) % numberOfWorkers;
 
                     Message message = new Message(limit, new Pair<Integer, Integer>(k, j));
 
@@ -120,13 +130,15 @@ public class MainServerPattern {
 
             experimentStatistics.add(server.getStatistics().totalTimeSeconds());
 
-            BufferedWriter writer = new BufferedWriter(new FileWriter(args[5], true));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(args[7], true));
 
             writer.append(String.valueOf(server.getStatistics().totalTimeSeconds())).append("\n");
 
             writer.close();
 
             nVeces--;
+
+
 
         }
 
