@@ -77,6 +77,8 @@ public class ServerSocketConnector extends SocketConnector{
 
         server.updateCoordinateValue(result);
 
+        in.close();
+
     }
 
 
