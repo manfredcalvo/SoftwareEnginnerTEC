@@ -20,30 +20,31 @@ import java.util.logging.Logger;
 /**
  * Created by mcalvo on 06/09/15.
  */
-public class MainServerPattern {
+public class MainServer {
 
 
-    private static Logger logger = Logger.getLogger(MainServerPattern.class.getName());
+    private static Logger logger = Logger.getLogger(MainServer.class.getName());
 
 
     public static void main(String []args) throws Exception {
 
 
-        args = new String[8];
+       /*args = new String[8];
 
-        args[0] = "10";
+        args[0] = "1";
         args[1] = "127.0.0.1:50003;127.0.0.1:50004";
         args[2] = "1000";
         args[3] = "1";
         args[4] = "8030";
-        args[5] = "NO_PATTERN";
-        args[6] = "10000";
-        args[7] = "/home/mcalvo/resultsPattern10MilV1.csv";
+        args[5] = "NO_PATTERN";//PATTERN 2.332
+        args[6] = "10";
+        args[7] = "/home/mcalvo/resultsPattern10MilV1.csv";*/
         //args[7] = "/Users/raquelrodriguezchaves/resultsNoPattern10MilV1.csv";
 
         DynamicBin1D experimentStatistics = new DynamicBin1D();
 
         int nVeces = Integer.parseInt(args[0]);
+
 
         while(nVeces > 0) {
 
@@ -115,8 +116,8 @@ public class MainServerPattern {
                 }
             }
 
-            t.join();
-            
+            server.awaitForTermination();
+
             for (int j = 0; j < matrixLength; j++) {
 
                 for (int k = 0; k < matrixLength; k++) {

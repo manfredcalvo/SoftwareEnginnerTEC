@@ -5,6 +5,7 @@ import com.research.MessagingPattern.instances.Task;
 import com.research.MessagingPattern.roles.impl.ServerPatternImpl;
 import com.research.MessagingPattern.utils.Statistics;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -18,6 +19,8 @@ public abstract class AbstractServer {
     protected Statistics statistics;
 
     protected AbstractConnector client;
+
+    private AtomicBoolean isTerminated = new AtomicBoolean(false);
 
     public AbstractServer(double matrix[][]){
 
@@ -39,6 +42,8 @@ public abstract class AbstractServer {
         if(statistics.getActualCount().incrementAndGet() == statistics.getTotalElements()){
 
             statistics.setEnd_time(System.currentTimeMillis());
+
+            isTerminated.set(true);
 
             if(this instanceof ServerPatternImpl) {
                 ((ServerPatternImpl)this).shutdownExecutors();
@@ -66,5 +71,15 @@ public abstract class AbstractServer {
 
     public void setStatistics(Statistics statistics) {
         this.statistics = statistics;
+    }
+
+    public void awaitForTermination() throws InterruptedException {
+
+        long timeToSleepMiliseconds = 10 * 1000;
+
+        while(!isTerminated.get()){
+            Thread.sleep(timeToSleepMiliseconds);
+        }
+
     }
 }
