@@ -41,7 +41,6 @@ public class MainServer {
         args[7] = "/home/mcalvo/resultsPattern10MilV1.csv";*/
         //args[7] = "/Users/raquelrodriguezchaves/resultsNoPattern10MilV1.csv";
 
-        DynamicBin1D experimentStatistics = new DynamicBin1D();
 
         int nVeces = Integer.parseInt(args[0]);
 
@@ -128,29 +127,16 @@ public class MainServer {
             }
 
             double throughput = ((double)matrixLength * matrixLength) / (double)server.getStatistics().totalTimeSeconds();
-
-            experimentStatistics.add(server.getStatistics().totalTimeSeconds());
-
+            
             BufferedWriter writer = new BufferedWriter(new FileWriter(args[7], true));
 
-            writer.append(String.valueOf(server.getStatistics().totalTimeSeconds())).append("\n");
+            writer.append(String.valueOf(throughput)).append("\n");
 
             writer.close();
 
             nVeces--;
 
-
-
         }
-
-         logger.info("Time in seconds mean: " + experimentStatistics.mean());
-
-        BufferedWriter writer = new BufferedWriter(new FileWriter(args[5], true));
-
-        //writer.append("Mean = ").append(String.valueOf(experimentStatistics.mean())).append("\n");
-
-        writer.close();
-
 
     }
 

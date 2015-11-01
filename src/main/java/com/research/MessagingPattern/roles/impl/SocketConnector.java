@@ -32,6 +32,7 @@ public abstract class SocketConnector extends AbstractConnector{
     @Override
     public void listenConnections(){
 
+
         try {
 
             logger.info("Socket listen connections");
@@ -40,19 +41,25 @@ public abstract class SocketConnector extends AbstractConnector{
 
             while (true) {
 
-                Socket clientSocket = serverSocket.accept();
+                try {
 
-                logger.info("Connecting with client: " + clientSocket.getInetAddress().getHostAddress());
+                    Socket clientSocket = serverSocket.accept();
 
-                readMessage(clientSocket);
+                    logger.info("Connecting with client: " + clientSocket.getInetAddress().getHostAddress());
+
+                    readMessage(clientSocket);
+
+                } catch (Throwable e) {
+                    e.printStackTrace();
+
+                }
 
             }
 
+
         }catch (Throwable e){
             e.printStackTrace();
-
         }
-
     }
 
 

@@ -47,13 +47,17 @@ public class ServerSocketConnector extends SocketConnector{
 
             while (x < totalConnections) {
 
-                Socket clientSocket = serverSocket.accept();
+                try {
+                    Socket clientSocket = serverSocket.accept();
 
-                logger.info("Connecting with client: " + clientSocket.getInetAddress().getHostAddress());
+                    logger.info("Connecting with client: " + clientSocket.getInetAddress().getHostAddress());
 
-                readMessage(clientSocket);
+                    readMessage(clientSocket);
 
-                x++;
+                    x++;
+                }catch (Throwable e){
+                    e.printStackTrace();
+                }
 
             }
 
