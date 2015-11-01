@@ -44,9 +44,6 @@ public class MainServer {
 
         int nVeces = Integer.parseInt(args[0]);
 
-
-        BufferedWriter writer = new BufferedWriter(new FileWriter(args[7]));
-
         while(nVeces > 0) {
 
             String workers[] = args[1].split(";");
@@ -86,6 +83,8 @@ public class MainServer {
 
             t.start();
 
+            Thread.sleep(2 * 1000);
+
             List<Worker> workerList = new ArrayList<Worker>(matrixLength);
 
             for (String worker : workers) {
@@ -117,15 +116,6 @@ public class MainServer {
 
             server.awaitForTermination();
 
-            for (int j = 0; j < matrixLength; j++) {
-
-                for (int k = 0; k < matrixLength; k++) {
-
-                    System.out.println("Entry = " + matrix[j][k]);
-
-                }
-            }
-
             int totalElements = matrixLength * matrixLength;
 
             double throughput = (double)totalElements / server.getStatistics().totalTimeSeconds();
@@ -134,15 +124,19 @@ public class MainServer {
 
             System.out.println("Throughput: " + throughput);
 
+            BufferedWriter writer = new BufferedWriter(new FileWriter(args[7], true));
+
             writer.append(String.valueOf(totalElements)).append('\t');
             writer.append(String.valueOf(server.getStatistics().totalTimeSeconds())).append('\t');
             writer.append(String.valueOf(throughput)).append("\n");
+            
+            writer.close();
 
             nVeces--;
 
         }
 
-        writer.close();
+
 
     }
 
