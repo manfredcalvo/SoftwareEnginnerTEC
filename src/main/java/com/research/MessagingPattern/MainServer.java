@@ -29,9 +29,9 @@ public class MainServer {
     public static void main(String []args) throws Exception {
 
 
-        /*args = new String[8];
+       /* args = new String[8];
 
-        args[0] = "10";
+        args[0] = "1";
         args[1] = "127.0.0.1:50003;127.0.0.1:50004";
         args[2] = "1000";
         args[3] = "1";
@@ -41,101 +41,93 @@ public class MainServer {
         args[7] = "/home/mcalvo/results.csv";*/
         //args[7] = "/Users/raquelrodriguezchaves/resultsNoPattern10MilV1.csv";
 
+        String workers[] = args[1].split(";");
 
-        int nVeces = Integer.parseInt(args[0]);
+        int numberOfWorkers = workers.length;
 
-        while(nVeces > 0) {
+        int limit = Integer.parseInt(args[2]);
 
-            String workers[] = args[1].split(";");
+        int cpus = Integer.parseInt(args[3]);
 
-            int numberOfWorkers = workers.length;
+        int port = Integer.parseInt(args[4]);
 
-            int limit = Integer.parseInt(args[2]);
+        Mode mode = Mode.valueOf(args[5]);
 
-            int cpus = Integer.parseInt(args[3]);
+        int matrixLength = Integer.parseInt(args[6]);
 
-            int port = Integer.parseInt(args[4]);
+        double matrix[][] = new double[matrixLength][matrixLength];
 
-            Mode mode = Mode.valueOf(args[5]);
+        AbstractServer server = null;
 
-            int matrixLength = Integer.parseInt(args[6]);
+        switch (mode) {
+            case PATTERN:
+                server = new ServerPatternImpl(matrix, cpus);
+                break;
+            case NO_PATTERN:
+                server = new ServerNoPatternImpl(matrix);
+                break;
+        }
 
-            double matrix[][] = new double[matrixLength][matrixLength];
+        AbstractConnector connector = new ServerSocketConnector(server, port, matrixLength * matrixLength);
 
-            AbstractServer server = null;
+        server.setClient(connector);
 
-            switch (mode) {
-                case PATTERN:
-                    server = new ServerPatternImpl(matrix, cpus);
-                    break;
-                case NO_PATTERN:
-                    server = new ServerNoPatternImpl(matrix);
-                    break;
-            }
+        ListenConnections listenConnections = new ListenConnections(connector);
 
-            AbstractConnector connector = new ServerSocketConnector(server, port, matrixLength * matrixLength);
+        Thread t = new Thread(listenConnections);
 
-            server.setClient(connector);
+        t.start();
 
-            ListenConnections listenConnections = new ListenConnections(connector);
+        Thread.sleep(2 * 1000);
 
-            Thread t = new Thread(listenConnections);
+        List<Worker> workerList = new ArrayList<Worker>(matrixLength);
 
-            t.start();
+        for (String worker : workers) {
 
-            Thread.sleep(2 * 1000);
+            String ipPort[] = worker.split(":");
 
-            List<Worker> workerList = new ArrayList<Worker>(matrixLength);
+            Worker newWorker = new Worker(ipPort[0], Integer.parseInt(ipPort[1]));
 
-            for (String worker : workers) {
-
-                String ipPort[] = worker.split(":");
-
-                Worker newWorker = new Worker(ipPort[0], Integer.parseInt(ipPort[1]));
-
-                workerList.add(newWorker);
-
-            }
-
-            int nextWorker = 0;
-
-            for (int j = 0; j < matrixLength; j++) {
-
-                for (int k = 0; k < matrixLength; k++) {
-
-                    Worker actual = workerList.get(nextWorker);
-
-                    nextWorker = (nextWorker + 1) % numberOfWorkers;
-
-                    Message message = new Message(limit, new Pair<Integer, Integer>(k, j));
-
-                    server.assignTaskToWorker(new Task(message, actual));
-
-                }
-            }
-
-            server.awaitForTermination();
-
-            int totalElements = matrixLength * matrixLength;
-
-            double throughput = (double)totalElements / server.getStatistics().totalTimeSeconds();
-
-            System.out.println("Total Time Seconds: " + server.getStatistics().totalTimeSeconds());
-
-            System.out.println("Throughput: " + throughput);
-
-            BufferedWriter writer = new BufferedWriter(new FileWriter(args[7], true));
-
-            writer.append(String.valueOf(totalElements)).append('\t');
-            writer.append(String.valueOf(server.getStatistics().totalTimeSeconds())).append('\t');
-            writer.append(String.valueOf(throughput)).append("\n");
-            
-            writer.close();
-
-            nVeces--;
+            workerList.add(newWorker);
 
         }
 
+        int nextWorker = 0;
+
+        for (int j = 0; j < matrixLength; j++) {
+
+            for (int k = 0; k < matrixLength; k++) {
+
+                Worker actual = workerList.get(nextWorker);
+
+                nextWorker = (nextWorker + 1) % numberOfWorkers;
+
+                Message message = new Message(limit, new Pair<Integer, Integer>(k, j));
+
+                server.assignTaskToWorker(new Task(message, actual));
+
+            }
+        }
+
+        t.join();
+
+        server.awaitForTermination();
+
+        int totalElements = matrixLength * matrixLength;
+
+        double throughput = (double)totalElements / server.getStatistics().totalTimeSeconds();
+
+        System.out.println("Total Time Seconds: " + server.getStatistics().totalTimeSeconds());
+
+        System.out.println("Throughput: " + throughput);
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(args[7], true));
+
+        writer.append(String.valueOf(totalElements)).append('\t');
+        writer.append(String.valueOf(server.getStatistics().totalTimeSeconds())).append('\t');
+        writer.append(String.valueOf(throughput)).append("\n");
+
+        writer.close();
 
 
     }

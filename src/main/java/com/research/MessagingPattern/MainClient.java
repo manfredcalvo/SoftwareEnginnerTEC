@@ -18,10 +18,10 @@ public class MainClient {
 
     public static void main(String []args){
 
-       /* args = new String[4];
+        /*args = new String[4];
         args[0] = "127.0.0.1:8030";
         args[1] = "2";
-        args[2] = "50004";
+        args[2] = "50003";
         args[3] = "NO_PATTERN";*/
 
         String serverIpPort = args[0];
