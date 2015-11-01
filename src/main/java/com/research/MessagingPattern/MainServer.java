@@ -29,7 +29,7 @@ public class MainServer {
     public static void main(String []args) throws Exception {
 
 
-       /*args = new String[8];
+      /* args = new String[8];
 
         args[0] = "1";
         args[1] = "127.0.0.1:50003;127.0.0.1:50004";
@@ -37,7 +37,7 @@ public class MainServer {
         args[3] = "1";
         args[4] = "8030";
         args[5] = "NO_PATTERN";//PATTERN 2.332
-        args[6] = "10";
+        args[6] = "100";
         args[7] = "/home/mcalvo/resultsPattern10MilV1.csv";*/
         //args[7] = "/Users/raquelrodriguezchaves/resultsNoPattern10MilV1.csv";
 
@@ -96,7 +96,7 @@ public class MainServer {
 
             t.start();
 
-            Thread.sleep(1000);
+            Thread.sleep(2000);
 
             int nextWorker = 0;
 
@@ -127,7 +127,7 @@ public class MainServer {
             }
 
             double throughput = ((double)matrixLength * matrixLength) / (double)server.getStatistics().totalTimeSeconds();
-            
+
             BufferedWriter writer = new BufferedWriter(new FileWriter(args[7], true));
 
             writer.append(String.valueOf(throughput)).append("\n");

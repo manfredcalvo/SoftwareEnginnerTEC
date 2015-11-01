@@ -48,6 +48,7 @@ public class ServerSocketConnector extends SocketConnector{
             while (x < totalConnections) {
 
                 try {
+
                     Socket clientSocket = serverSocket.accept();
 
                     logger.info("Connecting with client: " + clientSocket.getInetAddress().getHostAddress());
@@ -55,6 +56,7 @@ public class ServerSocketConnector extends SocketConnector{
                     readMessage(clientSocket);
 
                     x++;
+
                 }catch (Throwable e){
                     e.printStackTrace();
                 }
