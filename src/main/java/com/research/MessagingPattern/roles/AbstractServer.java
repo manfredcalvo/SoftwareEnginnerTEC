@@ -37,7 +37,7 @@ public abstract class AbstractServer {
 
     }
 
-    protected void updateCount(){
+    protected synchronized void updateCount(){
 
         if(statistics.getActualCount().incrementAndGet() == statistics.getTotalElements()){
 

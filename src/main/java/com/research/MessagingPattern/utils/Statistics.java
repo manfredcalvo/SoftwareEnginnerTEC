@@ -9,12 +9,12 @@ public class Statistics {
 
     private long start_time;
     private long end_time;
-    private long totalElements;
+    private AtomicLong totalElements;
     private AtomicLong actualCount;
 
     public Statistics(long start_time, long totalElements){
         this.start_time = start_time;
-        this.totalElements = totalElements;
+        this.totalElements = new AtomicLong(totalElements);
         this.actualCount = new AtomicLong(0);
     }
 
@@ -35,11 +35,11 @@ public class Statistics {
     }
 
     public long getTotalElements() {
-        return totalElements;
+        return totalElements.get();
     }
 
     public void setTotalElements(long totalElements) {
-        this.totalElements = totalElements;
+        this.totalElements.set(totalElements);
     }
 
     public AtomicLong getActualCount() {
