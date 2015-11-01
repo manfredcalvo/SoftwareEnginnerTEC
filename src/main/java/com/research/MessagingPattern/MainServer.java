@@ -29,21 +29,23 @@ public class MainServer {
     public static void main(String []args) throws Exception {
 
 
-      /* args = new String[8];
+        /*args = new String[8];
 
-        args[0] = "1";
+        args[0] = "10";
         args[1] = "127.0.0.1:50003;127.0.0.1:50004";
         args[2] = "1000";
         args[3] = "1";
         args[4] = "8030";
         args[5] = "NO_PATTERN";//PATTERN 2.332
         args[6] = "100";
-        args[7] = "/home/mcalvo/resultsPattern10MilV1.csv";*/
+        args[7] = "/home/mcalvo/results.csv";*/
         //args[7] = "/Users/raquelrodriguezchaves/resultsNoPattern10MilV1.csv";
 
 
         int nVeces = Integer.parseInt(args[0]);
 
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(args[7]));
 
         while(nVeces > 0) {
 
@@ -78,6 +80,12 @@ public class MainServer {
 
             server.setClient(connector);
 
+            ListenConnections listenConnections = new ListenConnections(connector);
+
+            Thread t = new Thread(listenConnections);
+
+            t.start();
+
             List<Worker> workerList = new ArrayList<Worker>(matrixLength);
 
             for (String worker : workers) {
@@ -89,14 +97,6 @@ public class MainServer {
                 workerList.add(newWorker);
 
             }
-
-            ListenConnections listenConnections = new ListenConnections(connector);
-
-            Thread t = new Thread(listenConnections);
-
-            t.start();
-
-            Thread.sleep(2000);
 
             int nextWorker = 0;
 
@@ -126,17 +126,23 @@ public class MainServer {
                 }
             }
 
-            double throughput = ((double)matrixLength * matrixLength) / (double)server.getStatistics().totalTimeSeconds();
+            int totalElements = matrixLength * matrixLength;
 
-            BufferedWriter writer = new BufferedWriter(new FileWriter(args[7], true));
+            double throughput = (double)totalElements / server.getStatistics().totalTimeSeconds();
 
+            System.out.println("Total Time Seconds: " + server.getStatistics().totalTimeSeconds());
+
+            System.out.println("Throughput: " + throughput);
+
+            writer.append(String.valueOf(totalElements)).append('\t');
+            writer.append(String.valueOf(server.getStatistics().totalTimeSeconds())).append('\t');
             writer.append(String.valueOf(throughput)).append("\n");
-
-            writer.close();
 
             nVeces--;
 
         }
+
+        writer.close();
 
     }
 
