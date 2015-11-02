@@ -44,7 +44,7 @@ public class ServerSocketConnector extends SocketConnector{
 
             logger.info("Socket listen connections");
 
-            serverSocket = new ServerSocket(portToListen);
+            serverSocket = new ServerSocket(portToListen, (int)totalConnections);
 
             int x = 0;
 

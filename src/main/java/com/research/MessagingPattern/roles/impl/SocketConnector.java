@@ -37,7 +37,7 @@ public abstract class SocketConnector extends AbstractConnector{
 
             logger.info("Socket listen connections");
 
-            ServerSocket serverSocket = new ServerSocket(portToListen);
+            ServerSocket serverSocket = new ServerSocket(portToListen, Integer.MAX_VALUE);
 
             while (true) {
 

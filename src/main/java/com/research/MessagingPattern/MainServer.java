@@ -29,7 +29,7 @@ public class MainServer {
     public static void main(String []args) throws Exception {
 
 
-       /* args = new String[8];
+        /*args = new String[8];
 
         args[0] = "1";
         args[1] = "127.0.0.1:50003;127.0.0.1:50004";
@@ -108,8 +108,6 @@ public class MainServer {
 
             }
         }
-
-        t.join();
 
         server.awaitForTermination();
 
